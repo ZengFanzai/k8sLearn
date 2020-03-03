@@ -18,8 +18,7 @@
       - [init](#init)
       - [安装 Pod 网络附加组件](#%e5%ae%89%e8%a3%85-pod-%e7%bd%91%e7%bb%9c%e9%99%84%e5%8a%a0%e7%bb%84%e4%bb%b6)
     - [配置 Slave 节点](#%e9%85%8d%e7%bd%ae-slave-%e8%8a%82%e7%82%b9)
-      - [方法 1-配置 hosts](#%e6%96%b9%e6%b3%95-1-%e9%85%8d%e7%bd%ae-hosts)
-      - [方法 2-搭建 bind9](#%e6%96%b9%e6%b3%95-2-%e6%90%ad%e5%bb%ba-bind9)
+      - [配置 hostname](#%e9%85%8d%e7%bd%ae-hostname)
   - [其他](#%e5%85%b6%e4%bb%96)
     - [kubeadm 集群的高可用](#kubeadm-%e9%9b%86%e7%be%a4%e7%9a%84%e9%ab%98%e5%8f%af%e7%94%a8)
     - [单机集群](#%e5%8d%95%e6%9c%ba%e9%9b%86%e7%be%a4)
@@ -282,39 +281,18 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 ### 配置 Slave 节点
 
-**需要配置 hosts，或者搭建一个 dns 服务器(bind9)**，否则会导致加入失败
+**当前虚拟机环境下，需要保证每个节点的 hostname 不一样，否则不能加入集群**
 
 参考：[How to Install Kubernetes on Ubuntu 18?](https://geekflare.com/install-kubernetes-on-ubuntu/)
 
-#### 方法 1-配置 hosts
+#### 配置 hostname
 
 ```sh
 # 在master上设置hostname
-sudo hostnamectl set-hostname kubernetes-master
+sudo hostnamectl set-hostname k8s-m
 #在两个slave上分别设置hostname
-sudo hostnamectl set-hostname kubernetes-worker1
-sudo hostnamectl set-hostname kubernetes-worker2
-
-# 之后编辑三个节点的hosts文件
-vim /etc/hosts
-# 添加
-192.168.1.201 kubernetes-master
-192.168.1.202 kubernetes-worker1
-192.168.1.203 kubernetes-worker2
-```
-
-#### 方法 2-搭建 bind9
-
-搭建步骤可以自行搜索
-为每一个节点设置一个域名，测试正常后，修改 master 的`/var/lib/kubelet/config.yaml`中 clusterDNS：为 dns 服务器地址。
-
-![clusterDNS](./img/clusterDNS.png)
-
-保存重启
-
-```sh
-sudo systemctl daemon-reload
-sudo systemctl restart kubelet.service
+sudo hostnamectl set-hostname k8s-w1
+sudo hostnamectl set-hostname k8s-w2
 ```
 
 当安装完 master，且 slave 也有对应的 kube 环境时，将之前保存的那个命令在当前节点运行。
